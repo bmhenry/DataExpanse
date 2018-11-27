@@ -5,7 +5,7 @@
 		_Rim("Fade Power", Range(0,8)) = 4
 	}
 		SubShader{
-		Tags{ "RenderType" = "Transparent" }
+		Tags{ "RenderType" = "Opaque" }
 		LOD 200
 
 		Cull Front
@@ -38,7 +38,7 @@
 		// Albedo comes from a texture tinted by color
 		fixed4 c = _Color;
 		o.Emission = c.rgb;
-		o.Alpha = lerp(0, 1, pow(rim, _Rim));
+		o.Alpha = lerp(0, 1, pow(1.5*rim, _Rim));
 	}
 	ENDCG
 	}

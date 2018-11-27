@@ -45,10 +45,8 @@ public class CreateStars : MonoBehaviour
         JObject obj = JObject.Parse(jsonstr);
         JsonConfig conf;
         conf = obj["map"].ToObject<JsonConfig>();
-        Debug.Log("map: \n" + conf.ToString());
 
         JArray dataset = (JArray)obj["data"];
-        Debug.Log("dataset: \n" + dataset.ToString());
 
         Vector3 basePos = new Vector3(0, 0, 0);
 
@@ -70,11 +68,8 @@ public class CreateStars : MonoBehaviour
             }
 
             newStar.radius = (float)s[conf.radius];
-            Debug.Log("radius: " + newStar.radius);
             newStar.mass = (float)s[conf.mass];
-            Debug.Log("mass: " + newStar.mass);
             newStar.position = basePos;
-            Debug.Log("pos: " + newStar.position);
 
             starData.Add(newStar);
 
@@ -82,20 +77,31 @@ public class CreateStars : MonoBehaviour
         }
 
         // create base material that star materials are created from
-        Material starMat = new Material(Shader.Find("Standard"));
+        Material starBodyMat = new Material(Resources.Load("StarMat", typeof(Material)) as Material);
+        Material starHaloMat = new Material(Resources.Load("lightup", typeof(Material)) as Material);
 
         // create game object which new stars are based off of
-        GameObject starPrim = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+        GameObject starPrim = new GameObject();
+        GameObject starBody = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+        GameObject starHalo = GameObject.CreatePrimitive(PrimitiveType.Sphere);
 
-        SphereCollider starCol = starPrim.GetComponent<SphereCollider>();
-        Renderer starRend = starPrim.GetComponent<Renderer>();
+        //SphereCollider starBodyCol = starPrim.GetComponent<SphereCollider>();
+        Renderer starBodyRend = starBody.GetComponent<Renderer>();
+        Renderer starHaloRend = starHalo.GetComponent<Renderer>();
 
         foreach (StarData star in starData)
         {
-            Debug.Log("Trying to set radius to: " + star.radius);
+            // set star's position
             starPrim.transform.localScale = new Vector3(star.radius, star.radius, star.radius);
-            starRend.material = new Material(starMat);
-            starRend.material.color = star.color;
+            
+            starBodyRend.material = new Material(starBodyMat);
+            //starBodyRend.material.color = star.color;
+            starBodyRend.material.SetColor("_EmissionColor", star.color);
+            starBodyRend.transform.parent = starPrim.transform;
+
+            starHaloRend.material = new Material(starHaloMat);
+            starHaloRend.material. color = star.color;
+            starHaloRend.transform.parent = starPrim.transform;
 
             // create stars
             Instantiate(starPrim, star.position, Quaternion.identity);
